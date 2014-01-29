@@ -1,0 +1,1681 @@
+<!--
+Developer : Zack Dennis (zack@asetniop.com)
+Date : 1/19/2013
+All code (c)2013 Pointesa, LLC all rights reserved
+-->
+
+
+<html>
+<head>
+    <!-- fill iPhone screen with canvas -->
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>ASETNIOP for keyboards with handwriting recogntion of numbers and symbols</title>
+	 <style>
+       * {
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: -moz-none;
+		-o-user-select: none;
+		user-select: none;
+       } 
+	   html,
+	   body {
+		margin:0;
+		padding:0;
+		height:100%;
+		}
+	.container {
+		min-height:100%;
+		position:relative;
+		}
+	.header {
+		padding:5px;
+		}
+	.textbody {
+		padding:10px;
+		padding-bottom:450px;   /* Height of the footer */
+		}
+	.buttonbody {
+		position:absolute;
+		bottom:0;
+		width:100%;
+		height:430px;   /* Height of the footer */
+}
+      .fontsizetext{
+        position:absolute;
+        font: 14pt Arial, serif;
+        color: #333;
+        background: rgba(180, 180, 180, 0);
+        text-align: center;
+      }
+      .fontsizestyle{
+        position:absolute;
+        color: #333;
+		left: 50%; 
+        font: 16pt Arial, serif;
+        text-align: center;
+        background: #deF;
+        border: 2px solid #888;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+	  .selectstyle{
+	  left: 50%; 
+	  font-size: 30px; 
+	  position: absolute; 
+	  bottom: 75px; 
+	  }
+	  .canvasstyle{
+	  position:absolute;
+	  left: 50%; 
+	  z-index: 1000; 
+        background: rgba(80, 100, 0, 0);
+	  }
+	  
+      .buttonstyle{
+        position:absolute;
+		left: 50%; 
+        font: 16pt Arial, serif;
+        color: #333;
+        background: #deF;
+        text-align: center;
+        border: 2px solid #888;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+      .activatebuttonstyle{
+        position:fixed;
+		right: 10px;
+		bottom: 10px;
+		background-image:url('http://asetniop.com/images/keyicon.png');
+      }
+      .activatebuttonstyledown{
+        position:fixed;
+		right: 10px;
+		bottom: 10px;
+		background-image:url('http://asetniop.com/images/keyicondown.png');
+      }
+      .textField {
+        display: inline;
+        font-size: 36px;
+        white-space: pre-wrap;
+		-webkit-user-select: text;
+		-khtml-user-select: text;
+		-moz-user-select: text;
+		-o-user-select: text;
+		user-select: text;
+      }
+      .textCursor {
+        display: inline;
+        font-size: 36px;
+        color: #9999FF;
+        opacity: 0.5;
+      }
+      .chordKey {
+        position: absolute;
+		left: 50%;
+        padding-top: 10px;
+        border: 1px solid #000;
+        background: rgba(180, 180, 180, 0); /* this is where you control the opacity and color of the main finger pads */
+        text-align: center;
+        color: #aaa;
+        font-family: Arial, sans-serif;
+        font-size: 22px;
+        z-index: 1000;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+      }
+      .Overlay {
+		left: 50%;
+        position: absolute;
+        background: rgba(104, 4, 4, 0); /* this is where you control the opacity and color of the main finger pads */
+        text-align: center;
+        color: #222;
+        z-index: 1000;
+      } 
+      .OverlayTop {
+	  top:0px;
+      }
+      .OverlayBottom {
+	  bottom:0px;
+      }
+      .OverlayX {
+		left: 50%;
+        position: absolute;
+        background: rgba(4, 94, 4, 0); /* this is where you control the opacity and color of the main finger pads */
+        text-align: center;
+        color: #222;
+        z-index: 1000;
+      } 
+      .kHelper {
+        position: absolute;
+        top: -30px;
+        left: -1px;
+        right: -1px;
+        height: 28px;
+        border: 1px solid #000;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding-top: 1px;
+        font-size: 14px;
+        font-family: Helvetica;
+      }
+      .kHelper b {
+        font-size: 18px;
+      }  
+      .kHelperBottom {
+        position: absolute;
+        top: -30px;
+        left: -1px;
+        right: -1px;
+        height: 28px;
+        border: 1px solid #000;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        padding-top: 1px;
+        font-size: 18px;
+        font-family: Helvetica;
+      } 
+      .keyContainer {
+		position: relative;
+        bottom: 0px;
+        left: 50%;
+        margin-left: -500px;
+      }
+	</style>
+
+	<script type="text/javascript" src="http://asetniop.com/jquery-1.8.3.min.js"></script>
+
+	<!-- handwriting recognition scripts -->
+	<script src="http://asetniop.com/Handwriting/compareArraysNumber.js"></script>
+	<script src="http://asetniop.com/Handwriting/compareArraysSymbol.js"></script>
+	<script src="http://asetniop.com/Handwriting/compareArraysAccent.js"></script>
+	<script src="http://asetniop.com/Handwriting/recognizeFunction.js"></script>
+	
+	<!--JSON objects with skins, accents, and keymaps -->
+	<script src="http://asetniop.com/JSON/SkinsJSON.js"></script>
+	<script src="http://asetniop.com/JSON/AccentsJSON.js"></script>
+	<script src="http://asetniop.com/JSON/LayoutsJSON.js"></script>
+	<script src="http://asetniop.com/JSON/DictionaryJSON.js"></script>
+	
+	
+	<!--main script -->
+    <script type="text/javascript">
+
+		//initial variable declarations
+		
+		var can4, ctx4, can4X, can4Y, mouseIsDown = 0;
+		var can5, ctx5, can5X, can5Y, mouseIsDown = 0;
+		var keyState = 0;
+		var keysToUseState = 0;
+		var shifttag = 0;
+		var tCounter = 0;
+		var trailingspace = '';
+		var leadingspace = '';
+		var currentword = '';
+		var autolength = 0;
+		var autoindex = -1;
+		var replacement = '';
+		var singletindex = 0;
+		var tDown = 0;
+		var pDown = 0;
+		var xDown = 0;
+		var bkspcheck = "";
+		var singlecheck = "";
+		var doublecheck = "";
+		var possibles = 0;
+		var autofillactive = 1;
+		var autofillactivelength = 2;
+		var leftshift = 8;
+		var rightshift = 9; // 8 for shift key, 9 for space
+		var firstkey = 0;
+		var shiftentry = "<b>space</b>"
+		var repeater = 0;
+		var timerepeat = 0;
+		var backspacecounter = 0;
+		var backspacehold = 5;
+		var backspaceinterval = 125;
+		
+		var autocorrectactive = 1; // deactivates when backspace is pressed, reactivates upon space
+		
+		var restoretext1 = "";
+		var restoretext2 = "";
+		
+		var SelectedSkin = 0;
+		var SelectedLayout = 0;
+		
+		var buttonDn = themes[0].buttonDn
+		var buttonUp = themes[0].buttonUp
+		var handwriting = themes[0].handwriting
+		
+		var AutoSingle = layouts[0].AutoSingle;
+		var AutoDouble1 = layouts[0].AutoDouble1;
+		var AutoDouble2 = layouts[0].AutoDouble2;
+		var AutoSD = layouts[0].AutoSD;
+		var AutoDS = layouts[0].AutoDS;
+		
+		var keyMap = new Array();
+			keyMap[0] = layouts[0].keyMapBase;
+			keyMap[1] = layouts[0].keyMapLeft;
+			keyMap[2] = layouts[0].keyMapRight;
+		
+		
+		
+//these functions are common to both ipad and keyboard versions: 
+		
+		
+		function getKeyToUse(n){
+        //this function returns the appropriate output depending on which keys were pressed
+			if(n == 512){
+				if(shifttag == 1){
+					shifttag = 0;
+					document.getElementById("x8").style.background=buttonUp;
+					document.getElementById("x9").style.background=buttonUp;
+					}        
+				} 
+			else if(shifttag == 1){
+				n = n + 256;
+				if(n == 512){
+					n = 0;
+					}
+				document.getElementById("x8").style.background=buttonUp;
+				document.getElementById("x9").style.background=buttonUp;
+				}
+			else if(n == 768){
+				document.getElementById("x8").style.background=buttonUp;
+				document.getElementById("x9").style.background=buttonUp;
+				}
+			return keyMap[firstkey][Math.min(keyMap[firstkey].length-1, Math.max(0, n))];
+			}
+	  
+	  
+		function BackspaceRepeat(){
+			if(backspacecounter>backspacehold){ 
+				if(document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-4, document.getElementById("output").innerHTML.length) == "&lt;" || document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-4, document.getElementById("output").innerHTML.length) == "&gt;"){
+					document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-4);
+					currentword = currentword.substr(0,currentword.length-4);
+					}
+				else if(document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-5, document.getElementById("output").innerHTML.length) == "&amp;"){
+					document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-5);
+					currentword = currentword.substr(0,currentword.length-5);
+				}
+				else{
+					document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-1);
+					currentword = currentword.substr(0,currentword.length-1);
+					}
+				autocorrectactive = 0;
+				}
+			backspacecounter += 1;
+			}
+			
+		function drawClear(){	
+            xDown = 0;
+            leadingspace = "";
+            trailingspace = "";
+            firstkey = 0;
+			currentword = "";
+			autofillactive = 0;
+			autocorrectactive = 0;
+            resetKeysToUseState();
+            drawHelpers();
+			document.getElementById("cursor").innerHTML = "_";
+			document.getElementById("h8").innerHTML="<b>SHIFT<b>";
+			$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});	// applies bold color
+			document.getElementById("t4").innerHTML = "";
+			document.getElementById("t5").innerHTML = "";
+			document.getElementById("t6").innerHTML = "";
+			}
+			
+		function capitalizeFirstLetter(string){	
+			return string.charAt(0).toUpperCase() + string.slice(1);
+			}
+		
+    function wordCheck(){
+      if(autocorrectactive == 0){
+        return;
+        }
+      possibles = 0;
+	  firstcap = 0;
+      autolength = currentword.length;
+      
+      checkword = currentword.toLowerCase(); //unfinished section to deal with first capital letter
+      if(checkword.substring(0,1) != currentword.substring(0,1)){
+        firstcap = 1;
+        }   
+		
+      if (dictionaryJSON[SelectedLanguage].dictionary[currentword] == undefined) { //  only  activates  if  there's an obvious error; builds a group of possible output words considering ALL potential step-on or fragmented  chord  errors
+
+        doublereplace = -1; //checks for fragmented chord errors
+        for (var i = 1; i < autolength; i++) {        
+          autocorrectfront = currentword.substring(0, i - 1);
+          doublecheck = currentword.substring(i - 1, i + 1);
+          autocorrectend = currentword.substring(i + 1, autolength);
+          DSindex = AutoDS.indexOf(doublecheck);
+          if (DSindex > -1) {
+            SDtext = AutoSD[DSindex];
+            SDword = autocorrectfront + SDtext + autocorrectend;
+            checkSDword = SDword;
+            if (dictionaryJSON[SelectedLanguage].dictionary[checkSDword.toLowerCase()] != undefined) {
+              doublereplace = 1;
+              SDreplace = SDword;
+              possibles += 1;
+              }
+            }
+          }
+   
+        singlereplace = 0; //checks for step-on errors
+        for (var i = 0; i < autolength; i++) {
+          for (var j = 0; j < 2; j++) {
+            autocorrectfront = currentword.substring(0, i);
+            singlecheck = currentword.substring(i, i+1);
+            autocorrectend = currentword.substring(i + 1, autolength);
+            SDindex = AutoSD.indexOf(singlecheck); 
+            if (SDindex > -1) {
+              DStext = AutoDS[SDindex + j * 27];
+              DSword = autocorrectfront + DStext + autocorrectend;
+              checkDSword = DSword;
+              if (dictionaryJSON[SelectedLanguage].dictionary[checkDSword.toLowerCase()] != undefined) {
+                singlereplace = 1;
+                DSreplace = DSword;
+                possibles += 1;
+                }
+              }
+            }
+          }
+    
+        if (possibles == 1) { //only activates if there's a unique possible replacement
+          if (doublereplace > 0) {
+			if(firstcap == 0){
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + SDreplace;
+				currentword = SDreplace;
+				}
+			else if(firstcap == 1){
+				SDreplace = capitalizeFirstLetter(SDreplace);	
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + SDreplace;
+				currentword = SDreplace;
+				}
+            }
+          else if (singlereplace > 0) {
+			if(firstcap == 0){
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + DSreplace;
+				currentword = DSreplace;
+				}
+			else if(firstcap == 0){
+				DSreplace = capitalizeFirstLetter(DSreplace);
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + DSreplace;
+				currentword = DSreplace;
+				}
+            }
+          }
+        }
+      }
+      
+
+    function inlineCheck(){
+      possibles = 0;
+      firstcap = 0;
+      if(autocorrectactive == 0){
+        return;
+        }
+
+      checkword = currentword.toLowerCase(); //unfinished section to deal with first capital letter
+      if(checkword.substring(0,1) != currentword.substring(0,1)){
+        firstcap = 1;
+        }           
+             
+                  
+      if (dictionaryJSON[SelectedLanguage].fragments[checkword] == undefined && dictionaryJSON[SelectedLanguage].dictionary[checkword] == undefined) { //  only  activates  if  there's an obvious error; builds a group of possible output words considering ALL potential step-on or fragmented  chord  errors
+
+        doublereplace = -1; //checks for fragmented chord errors
+        for (var i = 1; i < autolength; i++) {        
+          autocorrectfront = currentword.substring(0, i - 1);
+          doublecheck = currentword.substring(i - 1, i + 1);
+          autocorrectend = currentword.substring(i + 1, autolength);
+          DSindex = AutoDS.indexOf(doublecheck);
+          if (DSindex > -1) {
+            SDtext = AutoSD[DSindex];
+            SDword = autocorrectfront + SDtext + autocorrectend;
+            checkSDword = SDword;
+            if (dictionaryJSON[SelectedLanguage].fragments[checkSDword.toLowerCase()] != undefined) {
+              doublereplace = 1;
+              SDreplace = SDword;
+              possibles += 1;
+              }
+            else if (dictionaryJSON[SelectedLanguage].dictionary[checkSDword.toLowerCase()] != undefined) {
+              doublereplace = 1;
+              SDreplace = SDword;
+              possibles += 1;
+              }
+            }
+          }
+   
+        singlereplace = 0; //checks for step-on errors
+        for (var i = 0; i < autolength; i++) {
+          for (var j = 0; j < 2; j++) {
+            autocorrectfront = currentword.substring(0, i);
+            singlecheck = currentword.substring(i, i+1);
+            autocorrectend = currentword.substring(i + 1, autolength);
+            SDindex = AutoSD.indexOf(singlecheck); 
+            if (SDindex > -1) {
+              DStext = AutoDS[SDindex + j * 27];
+              DSword = autocorrectfront + DStext + autocorrectend;
+              checkDSword = DSword;
+              if (dictionaryJSON[SelectedLanguage].fragments[checkDSword.toLowerCase()] != undefined) {
+                singlereplace = 1;
+                DSreplace = DSword;
+                possibles += 1;
+                }
+              else if (dictionaryJSON[SelectedLanguage].fragments[checkDSword.toLowerCase()] != undefined) {
+                singlereplace = 1;
+                DSreplace = DSword;
+                possibles += 1;
+                }
+              }
+            }
+          }
+    
+        if (possibles == 1) { //only activates if there's a unique possible replacement
+          if (doublereplace > 0) {
+			if(firstcap == 0){
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + SDreplace;
+				currentword = SDreplace;
+				}
+			else if(firstcap == 1){
+				SDreplace = capitalizeFirstLetter(SDreplace);	
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + SDreplace;
+				currentword = SDreplace;
+				}
+				
+            }
+          else if (singlereplace > 0) {
+			if(firstcap == 0){
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + DSreplace;
+				currentword = DSreplace;
+				}
+			else if(firstcap == 0){
+				DSreplace = capitalizeFirstLetter(DSreplace);
+				document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length - autolength) + DSreplace;
+				currentword = DSreplace;
+				}
+            }
+          }
+        else if (doublecheck == "tp"){ //need to fix these so they don't overwrite viable words
+          document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-3);
+          document.getElementById("cursor").innerHTML = "_";
+          currentword = currentword.substr(0,currentword.length-3);
+          }
+        else if (doublecheck == "pt"){
+          document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-3);
+          document.getElementById("cursor").innerHTML = "_";
+          currentword = currentword.substr(0,currentword.length-3);
+          }
+        } 
+      }
+		
+
+		function pad0down(){
+			event.preventDefault()
+            document.getElementById("x0").style.background=buttonDn
+			keyState |= (1<<0);
+			if(firstkey==0){
+				firstkey = 1;}
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown();
+			}
+		function pad0up(){
+            document.getElementById("x0").style.background=buttonUp
+			keyState &= ~(1<<0);
+				processKeyUp();
+			} 
+
+		function pad1down(){
+			event.preventDefault()
+            document.getElementById("x1").style.background=buttonDn
+			keyState |= (1<<1);
+			if(firstkey==0){
+				firstkey = 1;}
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown();
+			} 
+		function pad1up(){
+            document.getElementById("x1").style.background=buttonUp
+			keyState &= ~(1<<1);
+				processKeyUp();
+			} 
+
+		function pad2down(){
+			event.preventDefault()
+            document.getElementById("x2").style.background=buttonDn
+			keyState |= (1<<2);
+			if(firstkey==0){
+				firstkey = 1;}
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown();
+			} 
+		function pad2up(){
+            document.getElementById("x2").style.background=buttonUp
+			keyState &= ~(1<<2);
+				processKeyUp();
+			} 
+			
+		function pad3down(){
+			event.preventDefault()
+            document.getElementById("x3").style.background=buttonDn
+			keyState |= (1<<3);
+			tDown = 1;
+			if(firstkey==0){
+				firstkey = 1;}
+			if(tDown + pDown + xDown == 2){
+				if(backspacecounter == 0){
+					timerepeat=setInterval(BackspaceRepeat, backspaceinterval);
+					BackspaceRepeat();
+					}
+				}
+			processKeyDown();
+			} 
+			
+		function pad3up(){
+            document.getElementById("x3").style.background=buttonUp
+			keyState &= ~(1<<3);
+				processKeyUp();
+			if(tDown + pDown + xDown == 2){
+				if(backspacecounter < backspacehold){
+					if(document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-4, document.getElementById("output").innerHTML.length) == "&lt;" || document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-4, document.getElementById("output").innerHTML.length) == "&gt;"){
+						document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-4);
+						currentword = currentword.substr(0,currentword.length-4);
+						}	
+					else if(document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-5, document.getElementById("output").innerHTML.length) == "&amp;"){
+						document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-5);
+						currentword = currentword.substr(0,currentword.length-5);
+					}
+					else{
+						document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-1);
+						currentword = currentword.substr(0,currentword.length-1);
+						}
+					autocorrectactive = 0;
+					}
+				}
+			clearInterval(timerepeat);
+			backspacecounter = 0;
+			tDown = 0;
+			} 
+
+
+				
+		function touchDown4() {
+			event.preventDefault()
+            document.getElementById("x4").style.background=buttonDn
+			keyState |= (1<<4);
+			if(firstkey==0){
+				firstkey = 2;}
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown()
+			
+            if(keyState == 16){ // supposed to only activate if N is the only key touched, actually activates if N is touched and another key subsequently touched.
+				mouseIsDown = 1;
+				var e = event;
+				can4X = e.pageX - can4.offsetLeft;
+				can4Y = e.pageY - can4.offsetTop-$(document).height()+$("#buttonbody").height();
+				ctx4.beginPath();
+				pathtrack = new Object();
+				pathtrack.startx = can4X;
+				pathtrack.starty = can4Y;
+				ctx4.moveTo(can4X, can4Y);
+				
+				
+				}
+        }
+
+ 
+        function touchUp4() {
+            document.getElementById("x4").style.background=buttonUp
+			keyState &= ~(1<<4);
+            mouseIsDown = 0;
+			var c=document.getElementById("can4"); //conversion of image into array
+			pathtrack.endx = can4X;
+			pathtrack.endy = can4Y;
+				if(keysToUseState == 16){
+					var recogTest = Recognize(c, pathtrack, NumberArray);
+					if(recogTest == "hide"){
+					$("#buttonbody").css({"display":"none"});
+					$("#activatebutton").css({"display":"inline"});
+					$("#activatebuttondown").css({"display":"inline"});
+					$("#activate").css({"display":"inline"});
+					resetKeysToUseState();
+					processKeyUp();
+					
+					}
+					else if(recogTest != "x"){
+						document.getElementById("output").innerHTML += recogTest;
+						drawClear();
+						}
+					else{
+						processKeyUp();
+						}
+					}
+				else{
+					processKeyUp();}
+			
+            mouse4XY();
+        }
+		
+        function mouse4XY(e) {
+            if (!e)
+                var e = event;
+            can4X = e.pageX - can4.offsetLeft;
+            can4Y = e.pageY - can4.offsetTop-$(document).height()+$("#buttonbody").height();
+            showPos4();
+        }
+ 
+        function touchXY4(e) {
+            if (!e)
+                var e = event;
+            e.preventDefault();
+			can4X = e.targetTouches[0].pageX - can4.offsetLeft;
+            can4Y = e.targetTouches[0].pageY - can4.offsetTop-$(document).height()+$("#buttonbody").height();
+			showPos4();
+			
+			
+        }
+ 
+ 
+        function showPos4() {
+            var str = can4X + ", " + can4Y;
+            if (mouseIsDown){
+                str += " down";
+				ctx4.fillStyle = handwriting;
+				ctx4.fillRect(can4X, can4Y , 1, 1);
+				ctx4.lineWidth = 1;
+				ctx4.lineTo(can4X, can4Y);
+				ctx4.strokeStyle = handwriting;
+				ctx4.stroke();
+				}
+            if (!mouseIsDown){
+                str += " up";
+				ctx4.clearRect(0, 0, can4.width, can4.height);
+				}
+            // draw text at center, max length to fit on canvas
+			}
+		
+		
+	
+        function touchDown5() {
+			event.preventDefault()
+            document.getElementById("x5").style.background=buttonDn
+			keyState |= (1<<5);
+			if(firstkey==0){
+				firstkey = 2;}
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown()
+            if(keyState == 32){ // supposed to only activate if N is the only key touched, actually activates if N is touched and another key subsequently touched.
+				mouseIsDown = 1;
+				var e = event;
+				can5X = e.pageX - can5.offsetLeft;
+				can5Y = e.pageY - can5.offsetTop-$(document).height()+$("#buttonbody").height();
+				ctx5.beginPath();
+				pathtrack = new Object();
+				pathtrack.startx = can5X;
+				pathtrack.starty = can5Y;
+				ctx5.moveTo(can5X, can5Y);
+				}
+        }
+
+ 
+        function touchUp5() {
+            document.getElementById("x5").style.background=buttonUp
+			keyState &= ~(1<<5);
+            mouseIsDown = 0;
+			var c=document.getElementById("can5"); //conversion of image into array
+			pathtrack.endx = can5X;
+			pathtrack.endy = can5Y;
+				if(keysToUseState == 32){
+					var recogTest = Recognize(c, pathtrack, SymbolArray);
+					if(recogTest != "x"){
+						document.getElementById("output").innerHTML += recogTest;
+						drawClear();
+						}
+					else{
+						processKeyUp();
+						}
+					}
+				else{
+					processKeyUp();}
+			
+            mouse5XY();
+        }
+		
+        function mouse5XY(e) {
+            if (!e)
+                var e = event;
+			can5X = e.pageX - can5.offsetLeft;
+			can5Y = e.pageY - can5.offsetTop-$(document).height()+$("#buttonbody").height();
+            showPos5();
+        }
+ 
+        function touchXY5(e) {
+            if (!e)
+                var e = event;
+            e.preventDefault();
+			can5X = e.targetTouches[0].pageX - can5.offsetLeft;
+            can5Y = e.targetTouches[0].pageY - can5.offsetTop-$(document).height()+$("#buttonbody").height();
+			showPos5();
+			
+			
+        }
+ 
+        function showPos5() {
+            // large, centered, bright green text
+            var str = can5X + ", " + can5Y;
+            if (mouseIsDown){
+                str += " down";
+				ctx5.fillStyle = handwriting;
+				ctx5.fillRect(can5X, can5Y , 1, 1);
+				ctx5.lineWidth = 1;
+				ctx5.lineTo(can5X, can5Y);
+				ctx5.strokeStyle = handwriting;
+				ctx5.stroke();
+				}
+            if (!mouseIsDown){
+                str += " up";
+				ctx5.clearRect(0, 0, can5.width, can5.height);
+				}
+            // draw text at center, max length to fit on canvas
+			}
+
+
+		function touchDown6() {
+			event.preventDefault()
+            document.getElementById("x6").style.background=buttonDn
+			keyState |= (1<<6);
+			if(firstkey==0){
+				firstkey = 2;}
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown()
+			
+            if(keyState == 64){ // supposed to only activate if N is the only key touched, actually activates if N is touched and another key subsequently touched.
+				mouseIsDown = 1;
+				var e = event;
+				can6X = e.pageX - can6.offsetLeft;
+				can6Y = e.pageY - can6.offsetTop-$(document).height()+$("#buttonbody").height();
+				ctx6.beginPath();
+				pathtrack = new Object();
+				pathtrack.startx = can6X;
+				pathtrack.starty = can6Y;
+				ctx6.moveTo(can6X, can6Y);
+				}
+        }
+
+ 
+        function touchUp6() {
+            document.getElementById("x6").style.background=buttonUp
+			keyState &= ~(1<<6);
+            mouseIsDown = 0;
+			var c=document.getElementById("can6"); //conversion of image into array
+			pathtrack.endx = can6X;
+			pathtrack.endy = can6Y;
+				if(keysToUseState == 64){
+					var recogTest = Recognize(c, pathtrack, AccentArray);
+					if(recogTest != "x"){
+//						document.getElementById("output").innerHTML += recogTest;
+						
+						var lastchar = document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-1);
+						
+						if(accentsJSON[lastchar] != undefined){
+						if(accentsJSON[lastchar][recogTest] != undefined){
+						document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-1) + accentsJSON[lastchar][recogTest];
+						}
+						else{
+						document.getElementById("output").innerHTML += accentsJSON.solo[recogTest];}
+						}
+						else{
+						document.getElementById("output").innerHTML += accentsJSON.solo[recogTest];
+						}
+						
+						drawClear();
+						}
+					else{
+						processKeyUp();
+						}
+					}
+				else{
+					processKeyUp();}
+			
+            mouse6XY();
+        }
+		
+        function mouse6XY(e) {
+            if (!e)
+                var e = event;
+			can6X = e.pageX - can6.offsetLeft;
+			can6Y = e.pageY - can6.offsetTop-$(document).height()+$("#buttonbody").height();
+            showPos6();
+        }
+ 
+        function touchXY6(e) {
+            if (!e)
+                var e = event;
+            e.preventDefault();
+			can6X = e.targetTouches[0].pageX - can6.offsetLeft;
+            can6Y = e.targetTouches[0].pageY - can6.offsetTop-$(document).height()+$("#buttonbody").height();
+			showPos6();
+			
+			
+        }
+ 
+ 
+        function showPos6() {
+            var str = can6X + ", " + can6Y;
+            if (mouseIsDown){
+                str += " down";
+				ctx6.fillStyle = handwriting;
+				ctx6.fillRect(can6X, can6Y , 1, 1);
+				ctx6.lineWidth = 1;
+				ctx6.lineTo(can6X, can6Y);
+				ctx6.strokeStyle = handwriting;
+				ctx6.stroke();
+				}
+            if (!mouseIsDown){
+                str += " up";
+				ctx6.clearRect(0, 0, can6.width, can6.height);
+				}
+            // draw text at center, max length to fit on canvas
+			}
+		
+		
+
+
+		function pad7down(){
+			event.preventDefault()
+            document.getElementById("x7").style.background=buttonDn
+			keyState |= (1<<7);
+			pDown = 1;
+			if(firstkey==0){
+				firstkey = 2;}
+			if(tDown + pDown + xDown == 2){
+				if(backspacecounter == 0){
+					timerepeat=setInterval(BackspaceRepeat, backspaceinterval);
+					BackspaceRepeat();}
+				}
+			processKeyDown();
+			} 
+		function pad7up(){
+            document.getElementById("x7").style.background=buttonUp
+			keyState &= ~(1<<7);
+				processKeyUp();
+			if(tDown + pDown + xDown == 2){
+				if(backspacecounter < backspacehold){
+					if(document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-4, document.getElementById("output").innerHTML.length) == "&lt;" || document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-4, document.getElementById("output").innerHTML.length) == "&gt;"){
+						document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-4);
+						currentword = currentword.substr(0,currentword.length-4);
+						}	
+					else if(document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-5, document.getElementById("output").innerHTML.length) == "&amp;"){
+						document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-5);
+						currentword = currentword.substr(0,currentword.length-5);
+					}
+					else{
+						document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-1);
+						currentword = currentword.substr(0,currentword.length-1);
+						}
+					autocorrectactive = 0;
+					}
+				}
+			clearInterval(timerepeat);
+			backspacecounter = 0;
+			pDown = 0;
+			} 
+			
+		function pad8down(){
+			event.preventDefault()
+            document.getElementById("x8").style.background=buttonDn
+			if(leftshift == 9){
+				autofillactive = 1;
+				if(keyState == 0){
+					leadingspace = " ";}
+				else if(keyState < 512){
+					trailingspace = " ";}
+				}
+			keyState |= (1<<leftshift);
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown();
+			} 
+		function pad8up(){
+			keyState &= ~(1<<leftshift);
+			if(leftshift == 9){
+				document.getElementById("x8").style.background=buttonUp}
+				processKeyUp();
+			} 
+
+		function pad9down(){
+			event.preventDefault()
+            document.getElementById("x9").style.background=buttonDn
+			if(rightshift == 9){
+				autofillactive = 1;
+				if(keyState == 0){
+					leadingspace = " ";}
+				else if(keyState < 512){
+					trailingspace = " ";}
+				}
+			keyState |= (1<<rightshift);
+			xDown = 3;
+			clearInterval(timerepeat);
+			processKeyDown();
+			} 
+		function pad9up(){
+			keyState &= ~(1<<rightshift);
+			if(rightshift == 9){
+				document.getElementById("x9").style.background=buttonUp;}
+				processKeyUp();
+			} 	
+			
+			
+			
+		function bugreportdown(){
+			document.getElementById("bugbutton").style.background="#79C";
+			} 
+		function bugreportup(){
+			document.getElementById("bugbutton").style.background="#deF";
+			var mBody = "Please describe the problem you encountered so we can fix it!<br><br><br><br><br><br><br><br><br><br><br><br>"
+              var mailaddress = "mailto:support@asetniop.com " +'?subject=' +"Bug report"+ '&body=' + mBody+ '<br><br><br><br><br>Typed using the ASETNIOP keyboard';
+              location.href = mailaddress;
+			} 
+			
+		function clearscreendown(){
+			document.getElementById("clearbutton").style.background="#79C";
+			} 
+		function clearscreenup(){
+			document.getElementById("clearbutton").style.background="#deF";
+			//RESETS EVERYTHING - maybe add a "restore text" button to "clear text" so user can restore text upon accidental clearance
+			restoretext1 = document.getElementById("output").innerHTML;
+            document.getElementById("output").innerHTML = restoretext2;
+			restoretext2 = restoretext1;
+            document.getElementById("cursor").innerHTML = "_";
+			document.getElementById("h8").innerHTML="<b>SHIFT<b>";
+			$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});	// applies bold color
+			if(restoretext2.length > 0){
+				document.getElementById("clearbutton").innerHTML="RESTORE<br>TEXT";}
+			else{
+				document.getElementById("clearbutton").innerHTML="CLEAR<br>TEXT";}
+			keyState = 0;
+			keysToUseState = 0;
+            xDown = 0;
+            leadingspace = "";
+            trailingspace = "";
+            firstkey = 0;
+			currentword = "";
+			autoindex = -1;
+			drawHelpers();
+			$(document).scrollTop($(document).height());
+			} 
+			
+		function fontsizeupdown(){
+			event.preventDefault()
+			document.getElementById("fontupbutton").style.background="#79C";
+			
+			} 
+		function fontsizeupup(){
+			document.getElementById("fontupbutton").style.background="#deF";
+			dynamiFontSize(4);
+			$(document).scrollTop($(document).height());
+			} 
+
+			
+			
+		function fontsizedowndown(){
+			event.preventDefault()
+			document.getElementById("fontdownbutton").style.background="#79C";
+			
+			} 
+		function fontsizedownup(){
+			document.getElementById("fontdownbutton").style.background="#deF";
+			dynamiFontSize(-4);
+			$(document).scrollTop($(document).height());
+			} 
+ 
+ 
+ 
+ 
+		function dynamiFontSize(incrmt){  
+            var para = document.getElementsByTagName('p');  
+            for(n=0; n<para.length; n++) {    
+				if(para[n].style.fontSize) {       
+					var size = parseInt(para[n].style.fontSize.replace('px', ''));    
+					}
+				else{       
+                    var size = 36;    
+                    }    
+				para[n].style.fontSize = size+incrmt + 'px';   
+                }
+            }
+		
+			
+		function activatedown(){
+			event.preventDefault()
+			$("#activatebutton").css({"opacity":0});
+			} 
+		function activateup(){
+			event.preventDefault()
+			$("#buttonbody").css({"display":"inline"});
+			$("#activatebutton").css({"display":"none"});
+			$("#activatebuttondown").css({"display":"none"});
+			$("#activatebutton").css({"opacity":1});
+			drawHelpers();
+			} 	
+
+		function getTotalKeysDown(){ 
+			var count = 0;
+			for(var i=0; i<8; i++){
+				if((keyState & (0x0001<<i)) == 0){ // swap for inversion
+					count++;
+					}
+				}	
+			return count;
+			}			
+
+
+		function getHelperKeyToUse(n){
+			return keyMap[firstkey][Math.min(keyMap[firstkey].length-1, Math.max(0, n))];
+			}
+		  
+		function processKeyDown(){
+			if(getTotalKeysDown() == 0){
+				resetKeysToUseState();
+				drawHelpers();
+				}
+			else{
+				for(var i=0; i<12; i++){
+					if((keyState & (0x0001<<i)) != 0){ // swap for inversion
+						keysToUseState |= (0x0001<<i);
+						}
+					}
+				drawHelpers(); // replaces helpers to reflect buttons that are pressed down
+				}
+			}
+	  
+		function resetKeysToUseState(){
+			keysToUseState = 0;
+			}
+
+      function processKeyUp(){
+		if(document.getElementById("output").innerHTML.length < 20  && document.getElementById("output").innerHTML.length > 5){
+			restoretext2 = "";
+			document.getElementById("clearbutton").innerHTML="CLEAR<br>TEXT";
+			document.getElementById("t4").innerHTML = "";
+			document.getElementById("t5").innerHTML = "";
+			document.getElementById("t6").innerHTML = "";
+			}
+        var dn = getTotalKeysDown();
+        if(dn == 8){
+            // SEND THE KEY!
+            var s = getKeyToUse(keysToUseState);
+            // reset the keysToUse.
+            resetKeysToUseState();
+            drawHelpers();
+            shifttag = 0;
+            drawHelpers();
+			
+			//accented characters and autofill/autocorrect deactivation
+			var lastchar = document.getElementById("output").innerHTML.substring(document.getElementById("output").innerHTML.length-1);
+			
+			var accentindex = accentUnicode.indexOf(s); // convert accent characters into accent names for matching in JSON arrays
+			if(accentindex > -1){
+				s = accentName[accentindex]
+				}
+				
+			if(accentsJSON[lastchar] != undefined){
+				if(accentsJSON[lastchar][s] != undefined){
+					document.getElementById("output").innerHTML = document.getElementById("output").innerHTML.substring(0, document.getElementById("output").innerHTML.length-1) + accentsJSON[lastchar][s];
+					s = '';
+					}
+				else if(accentsJSON.solo[s] != undefined){
+					document.getElementById("output").innerHTML += accentsJSON.solo[s];
+					s = '';
+					}
+				}
+			else if(accentsJSON.solo[s] != undefined){
+					document.getElementById("output").innerHTML += accentsJSON.solo[s];
+					s = '';
+				}
+			
+			autofillactive *= layouts[SelectedLayout].foreign;
+			autocorrectactive *= layouts[SelectedLayout].foreign;
+			
+			
+			
+            if(s == 'SPACE'){
+				s = " ";
+				leadingspace = "";
+				trailingspace = "";
+				clearInterval(timerepeat);
+				}
+			if(s == 'ENTER'){
+				s = '\n';
+				currentword = "";
+				}
+            if(s == 'NUMSYM'){
+				s = '';
+				currentword = "";
+				keyMap[0] = numsymlayouts[0].keyMapBase;
+				keyMap[1] = numsymlayouts[0].keyMapLeft;
+				keyMap[2] = numsymlayouts[0].keyMapRight;
+				drawHelpers();
+				}
+            if(s == 'LETTERS'){
+				s = '';
+				currentword = "";
+				keyMap[0] = layouts[SelectedLayout].keyMapBase;
+				keyMap[1] = layouts[SelectedLayout].keyMapLeft;
+				keyMap[2] = layouts[SelectedLayout].keyMapRight;
+				drawHelpers();
+				}
+            if(s == 'SHIFT'){
+				if(autofillactive == 1){
+					if(autoindex >= 0){
+						s = replacement;
+						document.getElementById("x8").style.background=buttonUp;
+						document.getElementById("x9").style.background=buttonUp;
+						}
+					else{
+						shifttag = 1;
+						drawHelpers();
+						s = '';
+						}
+					}
+				else{
+					shifttag = 1;
+					drawHelpers();
+					s = '';
+					}
+				}
+            if(s == '   '){
+				s = '<br>';
+				leadingspace = "";
+				trailingspace = "";
+				currentword = "";
+				}
+            if(s == 'BACK'){
+              //placeholder
+				}
+            if(s == '&larr;'){
+				s = "";
+				}
+              
+            if(s == " "){
+                wordCheck();
+                document.getElementById("output").innerHTML += leadingspace + s + trailingspace; //adds space, regardless of what transpired in the autocorrect above
+                currentword = '';
+                autoindex = -1;
+                document.getElementById("h8").innerHTML="<b>SHIFT<b>";
+				$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});	// applies bold color
+				autocorrectactive = 1;
+				}
+              
+            else if(leadingspace == " "){
+				wordCheck();
+				document.getElementById("output").innerHTML += leadingspace + s + trailingspace; //adds space, regardless of what transpired in the autocorrect above
+				currentword='';
+                autoindex = -1; 
+                document.getElementById("h8").innerHTML="<b>SHIFT<b>";
+				$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});	// applies bold color
+                currentword += s;
+				autocorrectactive = 1;
+				}
+              
+            else if(trailingspace == " "){
+				document.getElementById("output").innerHTML += s;
+				currentword += s;
+				autolength = currentword.length;
+				if(autolength > 0){
+					inlineCheck();
+					}
+				s = '';             
+				wordCheck();
+				document.getElementById("output").innerHTML += leadingspace + s + trailingspace; //adds space, regardless of what transpired in the autocorrect above
+				currentword = '';
+				autoindex = -1;  
+                document.getElementById("h8").innerHTML="<b>SHIFT<b>";
+				$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});	// applies bold color
+				autocorrectactive = 1;
+				}
+              
+            else{
+				document.getElementById("output").innerHTML += s;
+				currentword += s;
+				autolength = currentword.length;
+				if(autolength > 0){
+					inlineCheck();
+					}
+				}
+              
+              
+            autolength = currentword.length;
+			replacement = "";
+			if(dictionaryJSON[SelectedLanguage].fragments[currentword] != undefined && autolength > autofillactivelength){
+				autoindex = 1;
+				replacement = dictionaryJSON[SelectedLanguage].fragments[currentword];
+				document.getElementById("cursor").innerHTML = replacement;
+				document.getElementById("h8").innerHTML="<b>AUTOFILL</b>";
+				$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});	// applies bold color
+				leadingspace = "";
+				trailingspace = "";
+				}
+			else{
+				document.getElementById("cursor").innerHTML = "_";
+				document.getElementById("h8").innerHTML="<b>SHIFT<b>";
+				$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});	// applies bold color
+				leadingspace = "";
+				trailingspace = "";
+				}
+            
+			if(shifttag != 1){
+				document.getElementById("x8").style.background=buttonUp;
+				document.getElementById("x9").style.background=buttonUp;
+				}
+			
+            xDown = 0;
+            leadingspace = "";
+            trailingspace = "";
+            firstkey = 0;
+		}
+		$(document).scrollTop($(document).height());
+		}
+		
+		
+//alert needs to go into ipad version			
+			
+		function setupLayout(){
+			var LayoutName =   document.getElementById('Layout');
+			SelectedLayout = LayoutName.selectedIndex
+			if(SelectedLayout < 3){ // automatically switches back to English if English layout is selected
+				document.getElementById("Language").selectedIndex = 0; 
+				setupLanguage();
+				}
+			
+			keyMap[0] = layouts[SelectedLayout].keyMapBase;
+			keyMap[1] = layouts[SelectedLayout].keyMapLeft;
+			keyMap[2] = layouts[SelectedLayout].keyMapRight;
+			
+			
+			AutoSingle = layouts[SelectedLayout].AutoSingle;
+			AutoDouble1 = layouts[SelectedLayout].AutoDouble1;
+			AutoDouble2 = layouts[SelectedLayout].AutoDouble2;
+			AutoSD = layouts[SelectedLayout].AutoSD;
+			AutoDS = layouts[SelectedLayout].AutoDS;
+			
+			drawHelpers();
+		
+			}	
+			
+		function setupLanguage(){
+			var LanguageName =   document.getElementById('Language');
+			SelectedLanguage = LanguageName.selectedIndex			
+			drawHelpers();
+			
+			if(SelectedLanguage != 0 && SelectedLayout < 3){ // if non-English language, switches to non-English layout
+				document.getElementById("Layout").selectedIndex = document.getElementById("Layout").selectedIndex + 3; 
+				setupLayout();
+				}
+					
+			}
+			
+	  
+			
+				
+//these functions are different for keyboard and ipad versions		
+			
+		function setupHelpers(){
+			var Skin =   document.getElementById('ColorTheme');
+			SelectedSkin = Skin.selectedIndex
+  
+			buttonDn = themes[SelectedSkin].buttonDn
+			buttonUp = themes[SelectedSkin].buttonUp
+			handwriting = themes[SelectedSkin].handwriting
+  
+  
+			$('#h0').css({"background": themes[SelectedSkin].helper0});
+			$('#h1').css({"background": themes[SelectedSkin].helper1});
+			$('#h2').css({"background": themes[SelectedSkin].helper2});
+			$('#h3').css({"background": themes[SelectedSkin].helper3});
+			$('#h4').css({"background": themes[SelectedSkin].helper4});
+			$('#h5').css({"background": themes[SelectedSkin].helper5});
+			$('#h6').css({"background": themes[SelectedSkin].helper6});
+			$('#h7').css({"background": themes[SelectedSkin].helper7});
+			$('#h8').css({"background": themes[SelectedSkin].helper8});
+			$('#h9').css({"background": themes[SelectedSkin].helper9});
+
+
+			for(var i=0; i<10; i++){
+				$('#x'+i).css({"background": themes[SelectedSkin].buttonUp});
+				}
+
+			$("div.kHelper").css({"color": themes[SelectedSkin].helperTxt});	
+			$("div.kHelper b").css({"color": themes[SelectedSkin].helperTxtB});	
+			$("div.kHelperBottom").css({"color": themes[SelectedSkin].bhelperTxt});
+	
+			$("div.kHelper").css({"border": themes[SelectedSkin].outline});
+			$("div.kHelperBottom").css({"border": themes[SelectedSkin].outline});
+			$("div.chordKey").css({"border": themes[SelectedSkin].outline});
+			$("div.chordKey").css({"border-top-left-radius": themes[SelectedSkin].tlradius});
+			$("div.chordKey").css({"border-top-right-radius": themes[SelectedSkin].trradius});
+		
+			}
+
+		function init() {
+		
+//alert you need to copy this into ipad version too
+
+			var Skin =   document.getElementById('ColorTheme');
+			Skin.options.length = 0;
+			for (i=0; i<Object.keys(themes).length; i++) {
+				Skin.options[i] = new Option(themes[i].name);      
+				}
+
+			setupHelpers(); 
+			
+			var LayoutName =   document.getElementById('Layout');
+			LayoutName.options.length = 0;
+			for (i=0; i<Object.keys(layouts).length; i++) {
+				LayoutName.options[i] = new Option(layouts[i].name);      
+				}
+			
+			var LanguageName =   document.getElementById('Language');
+			LanguageName.options.length = 0;
+			for (i=0; i<Object.keys(dictionaryJSON).length; i++) {
+				LanguageName.options[i] = new Option(dictionaryJSON[i].name);      
+				}
+
+			setupLayout(); 
+			setupLanguage(); 
+			
+
+			drawHelpers(); //set up helper pads
+		
+            can4 = document.getElementById("can4");
+            ctx4 = can4.getContext("2d");
+			
+            can5 = document.getElementById("can5");
+            ctx5 = can5.getContext("2d");
+			
+            can6 = document.getElementById("can6");
+            ctx6 = can6.getContext("2d");
+			
+            pad0 = document.getElementById("k0");
+            pad0.addEventListener("touchstart", pad0down, false);
+            pad0.addEventListener("touchend", pad0up, false);	
+			
+            pad1 = document.getElementById("k1");
+            pad1.addEventListener("touchstart", pad1down, false);
+            pad1.addEventListener("touchend", pad1up, false);
+			
+            pad2 = document.getElementById("k2");
+            pad2.addEventListener("touchstart", pad2down, false);
+            pad2.addEventListener("touchend", pad2up, false);
+			
+            pad3 = document.getElementById("k3");
+            pad3.addEventListener("touchstart", pad3down, false);
+            pad3.addEventListener("touchend", pad3up, false);
+
+			var innerheight = window.innerHeight;
+			var innerwidth = window.innerWidth;
+			
+			can4.width = innerwidth*0.13;
+			can5.width = innerwidth*0.1225;
+			can6.width = innerwidth*0.1225;
+			
+			can4.height = $("#buttonbody").height()*0.55;
+			can5.height = $("#buttonbody").height()*0.55;
+			can6.height = $("#buttonbody").height()*0.70;
+			
+            can4.addEventListener("touchstart", touchDown4, false);
+            can4.addEventListener("touchmove", touchXY4, true);
+            can4.addEventListener("touchend", touchUp4, false);
+            can4.addEventListener("touchcancel", touchUp4, false);
+			
+			/* code to be removed for ipad version debug
+            can4.addEventListener("mousedown", mouseDown, false);
+            can4.addEventListener("mousemove", mouseXY, true);
+            can4.addEventListener("mouseup", mouseUp, false);
+			//end of code to be removed.*/
+			
+            can5.addEventListener("touchstart", touchDown5, false);
+            can5.addEventListener("touchmove", touchXY5, true);
+            can5.addEventListener("touchend", touchUp5, false);
+            can5.addEventListener("touchcancel", touchUp5, false);
+			
+            can6.addEventListener("touchstart", touchDown6, false);
+            can6.addEventListener("touchmove", touchXY6, true);
+            can6.addEventListener("touchend", touchUp6, false);
+            can6.addEventListener("touchcancel", touchUp6, false);
+			
+            pad7 = document.getElementById("k7");
+            pad7.addEventListener("touchstart", pad7down, false);
+            pad7.addEventListener("touchend", pad7up, false);
+			
+            pad8 = document.getElementById("k8");
+            pad8.addEventListener("touchstart", pad8down, false);
+            pad8.addEventListener("touchend", pad8up, false);
+			
+            pad9 = document.getElementById("k9");
+            pad9.addEventListener("touchstart", pad9down, false);
+            pad9.addEventListener("touchend", pad9up, false);
+			
+            sendemail = document.getElementById("email");
+            sendemail.addEventListener("touchstart", sendemaildown, false);
+            sendemail.addEventListener("touchend", sendemailup, false);
+			
+            bugreport = document.getElementById("bug");
+            bugreport.addEventListener("touchstart", bugreportdown, false);
+            bugreport.addEventListener("touchend", bugreportup, false);
+			
+            fontsizeup = document.getElementById("fontup");
+            fontsizeup.addEventListener("touchstart", fontsizeupdown, false);
+            fontsizeup.addEventListener("touchend", fontsizeupup, false);
+			
+            fontsizedown = document.getElementById("fontdown");
+            fontsizedown.addEventListener("touchstart", fontsizedowndown, false);
+            fontsizedown.addEventListener("touchend", fontsizedownup, false);
+			
+            clearscreen = document.getElementById("clear");
+            clearscreen.addEventListener("touchstart", clearscreendown, false);
+            clearscreen.addEventListener("touchend", clearscreenup, false);
+			
+            activatekeyboard = document.getElementById("activatebutton");
+            activatekeyboard.addEventListener("touchstart", activatedown, false);
+            activatekeyboard.addEventListener("touchend", activateup, false);
+			
+        }
+		
+
+			
+			
+//these functions generate whitespace to fill windshields so that the input don't move around left-right too much
+		function spacefront(i){
+			var numspaces = 2*i;
+			var frontspaces = "";
+			for(var z=0; z<numspaces; z++){
+				frontspaces += "&nbsp;"}
+				return frontspaces;
+			}
+			
+		function spacetrail(i){
+			var numspaces = 16-2*i;
+			var trailspaces = "";
+			for(var z=0; z<numspaces; z++){
+				trailspaces += "&nbsp;"}
+			return trailspaces;
+			}   			
+			
+			
+		
+			
+		function sendemaildown(){
+			document.getElementById("emailbutton").style.background="#79C";
+			} 
+		function sendemailup(){
+			document.getElementById("emailbutton").style.background="#deF";
+			var mBody = document.getElementById("output").innerHTML;
+              var mailaddress = "mailto: " +'?subject=' +" "+ '&body=' + mBody+ '<br><br><br><br><br>Typed using the ASETNIOP keyboard';
+              location.href = mailaddress;
+			} 
+			
+		function drawHelpers(){
+        //this function fills the appropriate helper bars with the appropriate potential output
+				var s = getHelperKeyToUse(keysToUseState);
+				if(s == 'SPACE'){
+					s = '&rarr;';
+					}
+				if(s == 'ENTER'){
+					s = '&darr;';
+					}
+				if(s == '&larr;'){
+					s = '&larr;';
+					}
+				if(s == '&larr;'){
+					document.getElementById("cursor").innerHTML = s;
+					}
+				else{
+					document.getElementById("cursor").innerHTML = "_";
+					}
+			for(var i=0; i<8; i++){
+				if(shifttag>0){
+					var modKeyState = keysToUseState +256;}
+				else{
+					var modKeyState = keysToUseState;}
+            
+				if((modKeyState & (0x0001<<i)) == 0){
+					// key has not been released yet...2 fingers...
+					modKeyState = modKeyState| (0x0001<<i);
+					var s = getHelperKeyToUse(modKeyState);
+					if(keysToUseState<1){
+						var html = "";}
+					else{
+						var html = "";
+						var frontspaces = spacefront(i);
+						html += frontspaces;
+						html += "<b>"+s+"</b>";
+						var trailspaces = spacetrail(i);
+						html += trailspaces;}        
+						for(var j=0; j<8; j++){
+							var modKeyState2 = modKeyState | (0x0001<<j);
+							s = getHelperKeyToUse(modKeyState2);
+							if(s != "..."){
+								if(keysToUseState < 1){
+									if(j != i){
+										html += " "+s;}
+									else{
+										html += " <b>"+s+"</b>";}
+									}
+								}
+							}
+						// write it :)
+					$("#h"+i).html(html);
+					}
+				else{
+					if(shifttag>0){
+						var s = getHelperKeyToUse(keysToUseState + shifttag*256);}
+					else{
+						var s = getHelperKeyToUse(keysToUseState);}
+						var html = "";
+						var frontspaces = spacefront(i);
+						html += frontspaces;
+						html += "<b>"+s+"</b>";
+						var trailspaces = spacetrail(i);
+						html += trailspaces;
+						$("#h"+i).html(html);
+					}
+				}
+			$("div.kHelper b").css({"color": themes[SelectedSkin].helperTxtB});	// applies bold color
+			}
+			
+			
+    </script>
+  
+</head>
+<body onload="init()" onkeydown="keydown(event)" onkeyup="keyup(event)">
+
+
+ 
+<div class="container">
+<div class="header"></div>
+<div class="textbody">
+<div style="padding-left: 25px; padding-right: 25px; width: 95%"><p id="output" class="textField"></p><p id="cursor" class="textCursor">_</p></div>
+</div>
+
+<div id="buttonbody" class="buttonbody">
+
+      <!-- main set of buttons; - visual -->
+        <div id="x0" class="chordKey" style="margin-left:-49.69%; height:33%; width:11.4%; bottom:43%"><div id="h0" class="kHelper">A</div><div id="t0"></div></div>
+        <div id="x1" class="chordKey" style="margin-left:-37.27%; height:33%; width:11.4%; bottom:51%"><div id="h1" class="kHelper">S</div><div id="t1"></div></div>
+        <div id="x2" class="chordKey" style="margin-left:-24.85%; height:33%; width:11.4%; bottom:55%"><div id="h2" class="kHelper">E</div><div id="t2"></div></div>
+        <div id="x3" class="chordKey" style="margin-left:-12.42%; height:33%; width:11.4%; bottom:49%"><div id="h3" class="kHelper">T</div><div id="t3"></div></div>
+        <div id="x4" class="chordKey" style="margin-left:0.81%; height:33%; width:11.4%; bottom:49%"><div id="h4" class="kHelper">N</div><div id="t4"><br>Draw<br>numbers<br>here</div></div>
+        <div id="x5" class="chordKey" style="margin-left:13.24%; height:33%; width:11.4%; bottom:55%"><div id="h5" class="kHelper">I</div><div id="t5"><br>Draw<br>symbols<br>here</div></div>
+        <div id="x6" class="chordKey" style="margin-left:25.66%; height:33%; width:11.4%; bottom:51%"><div id="h6" class="kHelper">O</div><div id="t6"><br>Draw<br>accents<br>here</div></div>
+        <div id="x7" class="chordKey" style="margin-left:38.09%; height:33%; width:11.4%; bottom:43%"><div id="h7" class="kHelper">P</div><div id="t7"></div></div>
+        <div id="x8" class="chordKey chordKeyThumb" style="margin-left:-20.37%; height:30%; width:19.3%; bottom:1%"><div id="h8" class="kHelperBottom"><b>SHIFT</b></div><div id="t8"></div></div>
+        <div id="x9" class="chordKey chordKeyThumb" style="margin-left:0.71%; height:30%; width:19.3%; bottom:1%"><div id="h9" class="kHelperBottom"><b>space</b></div><div id="t9"></div></div>
+
+		
+        <div id="emailbutton"; style="height:56px; line-height:28px; bottom: 8px; margin-left: -49%; width:11%;" class="buttonstyle">SEND AS<br>EMAIL</div>
+
+	    <div id="bugbutton"; style="height:56px; line-height:28px; bottom: 8px; margin-left: -35.5%; width:11%;" class="buttonstyle">REPORT<br>BUG</div>
+		
+		<select id='Layout' onchange="setupLayout()" class="selectstyle" style="margin-left: -49%; width:11.5%;"></select>
+		
+		<select id='Language' onchange="setupLanguage()" class="selectstyle" style="margin-left: -35.5%; width:11.5%;"></select>
+
+		
+	    <div id="fontupbutton"; style="height:30px; line-height:28px; bottom: 76px; margin-left: 25%; width:8%;" class="fontsizestyle">Size +</div>
+		
+	    <div id="fontdownbutton"; style="height:30px; line-height:28px; bottom: 16px; margin-left: 25%; width:8%;" class="fontsizestyle">Size -</div>
+
+		
+		<select id='ColorTheme' onchange="setupHelpers()" class="selectstyle" style="margin-left: 37%; width:11.5%;"></select>
+
+		
+        <div id="clearbutton"; style="height:56px; line-height:28px; bottom: 8px; margin-left: 37%; width:11%;" class="buttonstyle">CLEAR<br>TEXT</div>
+
+	
+      <!-- main set of buttons; - transparent overlays -->
+        <div id="k0" class="Overlay OverlayTop" style="width:12.5%; margin-left:-50%; height:70%"></div>
+        <div id="k1" class="OverlayX OverlayTop" style="width:12.25%; margin-left:-37.5%; height:70%"></div>
+        <div id="k2" class="Overlay OverlayTop" style="width:12.25%; margin-left:-25.25%; height:55%"></div>
+        <div id="k3" class="OverlayX OverlayTop" style="width:13%; margin-left:-13%; height:55%"></div>
+
+		<canvas id="can4" height="240" width="126" style="z-index: 1000; position: absolute; top: 0px; left:50%; margin-left: 0%; background-color:rgba(4, 4, 4, 0)"></canvas>
+
+		<canvas id="can5" height="240" width="123" style="z-index: 1000; position: absolute; top: 0px; left:50%; margin-left: 13%; background-color:rgba(4, 4, 4, 0)"></canvas>
+		
+		<canvas id="can6" height="310" width="123" style="z-index: 1000; position: absolute; top: 0px; left:50%; margin-left: 25.25%; background-color:rgba(4, 4, 4, 0)"></canvas>
+		
+        <div id="k7" class="OverlayX OverlayTop" style="width:12.5%; margin-left:37.5%; height:70%"></div>
+        <div id="k8" class="Overlay OverlayBottom" style="width:23%; margin-left:-23%; height:45%"></div>
+        <div id="k9" class="OverlayX OverlayBottom" style="width:25.25%; margin-left:0%; height:45%"></div>
+ 
+        <div id="email" style="bottom: 0px; margin-left: -50%; height: 75px; width: 14%;" class="Overlay OverlayBottom"></div>
+
+        <div id="bug" style="bottom: 0px; margin-left: -36%; height: 75px; width: 13%" class="OverlayX OverlayBottom"></div>
+
+		<div id="fontup" style="bottom: 65px; margin-left: 25.25%; height: 65px; width: 10.75%;" class="Overlay OverlayBottom"></div>
+		<div id="fontdown" style="bottom: 0px; margin-left: 25.25%; height: 65px; width: 10.75%;" class="OverlayX OverlayBottom"></div>
+
+		<div id="clear" style="bottom: 0px; margin-left: 36%; height: 75px; width: 15%;" class="Overlay OverlayBottom"></div>
+     
+</div>
+<div id="activatebuttondown"; style="display:none; width:120px; height:60px;" class="activatebuttonstyledown"></div>
+<div id="activatebutton"; style="display:none; width:120px; height:60px;" class="activatebuttonstyle"></div>
+  
+</div>    
+  
+</body>
+</html>	
