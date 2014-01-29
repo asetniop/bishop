@@ -1,4 +1,4 @@
 bishop
 ======
 
-Alberto Fanjul Alonso project
+Joint project with Alberto Fanjul Alonso
